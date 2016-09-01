@@ -1,0 +1,29 @@
+os: osx
+language: rust
+compiler: clang
+
+env:
+  global:
+    - TCI_DIR_APPS=$HOME/Bundles
+
+before_install:
+  - brew update
+  - brew install freealut openssl
+
+script:
+  - build-product.sh
+  - mkdir -p $TCI_DIR_APPS
+  - zip -r $TCI_DIR_APPS/Tickeys-$TRAVIS_TAG.zip *.app
+  - openssl dgst -sha512 $TCI_DIR_APPS/*.zip | tee $TCI_DIR_APPS/Tickeys-$TRAVIS_TAG.sha512.txt
+
+deploy:
+  skip_cleanup: true
+  file_glob: true
+  file: $TCI_DIR_APPS/*
+  provider: releases
+  api_key:
+    secure: e+opiFl5vF0pYcfWk2VHLXoEiS2G1dCT2X+MNRZBjkJ1VrmhLirFvVKeCvPBUSADwr+xTo/wvsAM8iViktR39wBwu23QMHnDv6yDi4t7STMjQYUFOjKmDeBjFdeHzg2oPvYTNaamqPymBglYB7hlNskIBduY+FANrMhjZljsh00QZ49hNVTFZ/FE/cEjs89/vu/GnRvVb30cHWsuF9Rv52oJvxXo8QkSIC/2udJrKWuy1HB+6zXTiZe+f3srv6N0hQpgAZHEYzdbhYtWj5ETkBgiBwLgpU+RWB/uNXNZ8eTWyqn9ZLOabrwECua2anbl0RYuM/NIwj/ZBEacfogwP5xSjt5vda4bV9ri9iCnd88z3SNqz+UX1A84xZR4Te7LrXKd1pQ3MCuaK3qqAL1yiCgA7/MytiWZeHvJelQxwfN7jBWBdHSol4WUb7AxskfuP0QE4V8hVRecqaOP4IBllyaINl31AQzN8CBDObLlwRcGByNR8gFf2RD9g4qTXY9Mlt8flf2jK0Y8bgmxdSbpLLl4TWKHN2e2HbTEGOVIwvWb227qkugcjNgdT8JMbJd9vztwcVB/cqqUkaMMwzxF/WxwOHQ0+B/Vj5pE4YUtiNW9venDa8oVzyF2l2ggAcC9cnKicPP6dg5bIrMikLrgw7pbijyD5emN5WVAAta5Lpo=
+  on:
+    repo: auto-load/Tickeys
+    branch: build
+    tags: true
